@@ -1,0 +1,32 @@
+#!/bin/bash
+#SBATCH --job-name=test_3d_fullres
+#SBATCH --partition=bme_gpu
+#SBATCH --output=./log/%j_gpu3d_lowres_out.out
+#SBATCH --error=./log/%j_gpu3d_lowres_err.out
+#SBATCH -N 1
+#SBATCH -n 8    
+#SBATCH --mem 40G
+#SBATCH --gres=gpu:NVIDIAA10080GBPCIe:1
+#SBATCH -t 48:00:00
+ 
+
+
+echo ${SLURM_JOB_NODELIST}$
+# echo start on $(data)
+export nnUNet_raw="/public_bme/data/xiongjl/nnDet/DataFrame/nnUNet_raw"
+export nnUNet_preprocessed="/public_bme/data/xiongjl/nnDet/DataFrame/nnUNet_preprocessed"
+export nnUNet_results="/public_bme/data/xiongjl/nnDet/DataFrame/nnUNet_results"
+export PYTHONPATH="${PYTHONPATH}:/public_bme/data/xiongjl/nnDet/dynamic_network_architectures_det"
+# nnUNetv2_preprocess -d 502 -c 3d_fullres -np 4
+nnUNetv2_train 502 3d_fullres 4 --c  # trianing command
+
+# nnUNetv2_find_best_configuration 502 -c 3d_fullres 3d_lowres 3d_fullres 
+# nnUNetv2_predict -d Dataset501_LymphNodes \
+#                  -i /public_bme/data/xiongjl/nnUNet/nnUNetFrame/DATASET/nnUNet_raw/Dataset501_LymphNodes/testingTr/ \
+#                  -o /public_bme/data/xiongjl/nnUNet/nnUNetFrame/DATASET/nnUNet_raw/Dataset501_LymphNodes/resultTr_3d_cascade_0 \
+#                  -f 0 \
+#                  -tr nnUNetTrainer \
+#                  -c 3d_fullres \
+#                  -p nnUNetPlans
+
+# echo end on $(data)
